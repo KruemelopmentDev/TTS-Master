@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/ite1"
+        android:title="Vorlesen"
+        android:icon="@drawable/read"/>
+    <item
+        android:id="@+id/ite2"
+        android:icon="@drawable/content_save"
+        android:title="eigene Texte" />
+</menu>
