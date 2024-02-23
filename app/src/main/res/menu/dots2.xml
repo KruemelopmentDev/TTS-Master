@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:checkable="true" android:title="Nachtmodus" android:id="@+id/nightmode"/>
-    <item android:checkable="true" android:title="Pop-up" android:id="@+id/popuplol"/>
     <item android:id="@+id/item5" android:title="Datenschutzerklärung"/>
     <item android:id="@+id/item4" android:title="Nutzungsbedingungen"/>
     <item android:id="@+id/item6" android:title="Kontakt"/>

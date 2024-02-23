@@ -3,10 +3,6 @@
     android:installLocation="auto">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <queries>
         <intent>
@@ -67,8 +63,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths"/>
         </provider>
-        <service android:name=".CopyService" android:foregroundServiceType="specialUse"/>
-        <activity android:name=".Popup" android:theme="@style/Dialog" android:label="TTS Master" android:launchMode="singleTask"/>
 
 </application>
 

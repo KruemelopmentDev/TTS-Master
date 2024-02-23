@@ -1,11 +1,8 @@
 package de.kruemelopment.org.speak
 
 import android.Manifest
-import android.app.Activity
-import android.app.ActivityManager
 import android.app.Dialog
 import android.content.ContentValues
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -16,7 +13,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
-import android.provider.Settings
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.view.LayoutInflater
@@ -28,8 +24,6 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.PopupMenu
@@ -49,32 +43,16 @@ class ItemOneFragment : Fragment {
     private var tts: TextToSpeech? = null
     private var ready = 0
     private var format: String? = ".mp3"
-    private var popup: MenuItem? = null
     private var shared: String? = null
     private var dataBaseHelper: DataBaseHelper? = null
     private var myToast: MyToast? = null
     private var editText: TextInputEditText? = null
-    private var someActivityResultLauncher: ActivityResultLauncher<Intent>? = null
 
     constructor(shared: String?) : super() {
         this.shared = shared
     }
 
     constructor() : super()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        someActivityResultLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) { result: ActivityResult ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                if (Settings.canDrawOverlays(context)) {
-                    requireContext().startService(Intent(context, CopyService::class.java))
-                    popup!!.setChecked(true)
-                } else popup!!.setChecked(false)
-            }
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -255,15 +233,6 @@ class ItemOneFragment : Fragment {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.dots2, menu)
-        popup = menu.findItem(R.id.popuplol)
-        popup!!.setChecked(isMyServiceRunning)
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            popup!!.setVisible(false)
-        }
         val darkmode = menu.findItem(R.id.nightmode)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             darkmode.setVisible(false)
@@ -274,55 +243,33 @@ class ItemOneFragment : Fragment {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.item4) {
-            val uri = Uri.parse("https://www.kruemelopment-dev.de/nutzungsbedingungen")
-            val intent = Intent(Intent.ACTION_VIEW, uri)
-            startActivity(intent)
-        } else if (item.itemId == R.id.item5) {
-            val uri = Uri.parse("https://www.kruemelopment-dev.de/datenschutzerklärung")
-            val intent = Intent(Intent.ACTION_VIEW, uri)
-            startActivity(intent)
-        } else if (item.itemId == R.id.item6) {
-            val intent = Intent(Intent.ACTION_SENDTO)
-            intent.setData(Uri.parse("mailto:kontakt@kruemelopment-dev.de"))
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-        } else if (item.itemId == R.id.popuplol) {
-            if (!Settings.canDrawOverlays(context)) {
-                if (!item.isChecked) {
-                    val intent2 = Intent(
-                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:" + requireContext().packageName)
-                    )
-                    someActivityResultLauncher!!.launch(intent2)
-                } else {
-                    if (isMyServiceRunning) {
-                        requireContext().stopService(Intent(context, CopyService::class.java))
-                    }
-                }
-                item.setChecked(false)
-            } else {
-                if (!item.isChecked) {
-                    if (!isMyServiceRunning) {
-                        requireContext().startService(Intent(context, CopyService::class.java))
-                    }
-                    item.setChecked(true)
-                } else {
-                    if (isMyServiceRunning) {
-                        requireContext().stopService(Intent(context, CopyService::class.java))
-                    }
-                    item.setChecked(false)
-                }
+        when (item.itemId) {
+            R.id.item4 -> {
+                val uri = Uri.parse("https://www.kruemelopment-dev.de/nutzungsbedingungen")
+                val intent = Intent(Intent.ACTION_VIEW, uri)
+                startActivity(intent)
             }
-        } else if (item.itemId == R.id.nightmode) {
-            MainActivity.nightmode = !MainActivity.nightmode
-            val sp = requireContext().getSharedPreferences("settings", 0)
-            val e = sp.edit()
-            e.putBoolean("mode", MainActivity.nightmode)
-            e.apply()
-            if (MainActivity.nightmode) AppCompatDelegate.setDefaultNightMode(
-                AppCompatDelegate.MODE_NIGHT_YES
-            ) else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            R.id.item5 -> {
+                val uri = Uri.parse("https://www.kruemelopment-dev.de/datenschutzerklärung")
+                val intent = Intent(Intent.ACTION_VIEW, uri)
+                startActivity(intent)
+            }
+            R.id.item6 -> {
+                val intent = Intent(Intent.ACTION_SENDTO)
+                intent.setData(Uri.parse("mailto:kontakt@kruemelopment-dev.de"))
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+            }
+            R.id.nightmode -> {
+                MainActivity.nightmode = !MainActivity.nightmode
+                val sp = requireContext().getSharedPreferences("settings", 0)
+                val e = sp.edit()
+                e.putBoolean("mode", MainActivity.nightmode)
+                e.apply()
+                if (MainActivity.nightmode) AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_YES
+                ) else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
         }
         return true
     }
@@ -340,18 +287,6 @@ class ItemOneFragment : Fragment {
         tts!!.setPitch(ptchh)
         tts!!.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
     }
-
-    private val isMyServiceRunning: Boolean
-        get() {
-            val manager =
-                (requireContext().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager)
-            for (service in manager.getRunningServices(Int.MAX_VALUE)) {
-                if (CopyService::class.java.name == service.service.className) {
-                    return true
-                }
-            }
-            return false
-        }
 
     private fun storeaudio(text: String?, filename: String, share: Boolean, speed: Float, pitch: Float) {
         val handler = Handler(Looper.getMainLooper())
